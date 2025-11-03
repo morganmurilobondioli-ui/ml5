@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <!--P5.js administrar componenetes Web = canvas, cámara, sonido, etc -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.10/p5.min.js"></script>
+  <!--Librería ML5 - Machine Learning -->
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+</head>
+<body>
+<script>
+    let handPose;
+    let video;
+    let hands = [];
+
+    // Una variable para rastrear un pellizco entre el pulgar y el índice
+    let pinch = 0;
+
+    function preload() {
+      // Cargar el modelo de handPose
+      handPose = ml5.handPose();
+    }
+
+    function setup() {
+      createCanvas(640, 480);
+      // Crear el video de la cámara web y ocultarlo
+      video = createCapture(VIDEO);
+      video.size(640, 480);
+      video.hide();
+      // Comenzar a detectar manos desde el video de la cámara web
+      handPose.detectStart(video, gotHands);
+    }
+
+    function draw() {
+      // Dibujar el video de la cámara web
+      image(video, 0, 0, width, height);
+
+      // Verificar si hay al menos una mano detectada
+      if (hands.length > 0) {
+        // Obtener la punta del dedo índice y la punta del pulgar
+        let finger = hands[0].index_finger_tip;
+        let thumb = hands[0].thumb_tip;
+
+        // Dibujar círculos en las posiciones de los dedos
+        let centerX = (finger.x + thumb.x) / 2;
+        let centerY = (finger.y + thumb.y) / 2;
+
+        // Calcular la distancia del "pellizco" entre el índice y el pulgar
+        let pinch = dist(finger.x, finger.y, thumb.x, thumb.y);
+
+        if (pinch < 203){fill(255, 0, 0, 200);}else{fill(0, 0, 255, 200);}
+
+        // El tamaño de este círculo se controla con el gesto de "pellizco"
+        stroke(0);
+        strokeWeight(2);
+        circle(centerX, centerY, pinch);
+      }
+    }
+
+    // Función de retorno (callback) cuando handPose produce resultados
+    function gotHands(results) {
+      // Guardar los resultados en la variable hands
+      hands = results;
+    }
+  </script>
+</body>
+</html>

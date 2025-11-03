@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ml5 - Imágenes</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.10/p5.min.js"></script>
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+</head>
+<body>
+
+
+  <script src="sketch.js"></script>
+  <script>
+    // Initialize the Image Classifier method with MobileNet. A callback needs to be passed.
+    //Objeto que permitira la clasificación
+    let classifier;
+
+    // A variable to hold the image we want to classify
+    //Objeto que tendr{a referenciada la imágen a clasificar
+    let img;
+
+    // Variables for displaying the results on the canvas
+    // Variables donde tendrá almacenada los resultados
+    //label         : etiqueta (ejemplo gato, pez payaso)
+    //confidence    : confianza (aceptación procentual)
+    let label = "";
+    let confidence = "";
+
+    //1. preload (precarga) - función ml5
+    function preload() {
+      //MobileNet = modelo básicp entrenada de reconocimiento
+      classifier = ml5.imageClassifier("MobileNet");
+      //Referenciar imagen física a indentificar
+      img = loadImage("images/image-1.jpg");
+    }
+
+    //2. configuracion - función ml5
+    function setup() {
+      //Canvas = lienzo (renderizar, pintar)
+      createCanvas(800, 800);
+      //Se pasa la imagen para su clasificación, el resultado > función
+      classifier.classify(img, gotResult);
+      //Renderizar imagen jpg en el canvas
+      image(img, 0, 0, width, height);
+    }
+
+    // Callback function for when classification has finished
+    // results es un arreglo de 3 elementos
+    function gotResult(results) {
+      // The results are in an array ordered by confidence
+      //Mostrar resultado en consola
+      console.log(results);
+
+      // Display the results on the canvas
+      //Mostrar resultado en el canvas
+      //fill es para el color de la letra
+      //RGB RED/GREEN/BLUE
+      //    255/255/255 = BLANCO
+      //     0 / 0 / 0  = NEGRO
+      fill(255);
+      //Color de borde
+      stroke(0);
+      //Tamaño de letra
+      textSize(18);
+      label = "Label: " + results[0].label;
+      confidence = "Confidence: " + nf(results[0].confidence, 0, 2); //nf es una función de la librería ml5 y sirve para redondear los números
+      //La función text, renderiza el contenido en el Canvas
+      text(label, 10, 360);
+      text(confidence, 10, 380);
+    }
+  </script>
+</body>
+</html>

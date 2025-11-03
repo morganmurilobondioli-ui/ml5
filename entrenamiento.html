@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrenar una red neuronal</title>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.min.js"></script>
+  <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
+
+</head>
+<body>
+  <script>  
+    //3 arreglos para gestionar cada de imagenes
+    let circles = []
+    let squares = []
+    let triangles = []
+
+    let shapeClassifier //Clasifica for, entrenamiento - ML5
+
+    function preload(){
+      for(let i = 0; i < 100; i++){
+        let index = nf((i+1), 3, 0) //001, 002 ... 100
+        circles[i] = loadImage(`data/circle${index}.png`)
+        squares[i] = loadImage(`data/square${index}.png`)
+        triangles[i] = loadImage(`data/triangle${index}.png`)
+      }
+    }
+
+    function setup(){
+      //Configuración de la red NEURONAL
+      let options = {
+        inputs  : [64, 64, 4],
+        task    : 'imageClassification',
+        debug   : true //ver proceso de entrenamiento
+      }
+
+      //La nueva red Neuronal de conocimiento - Algoritmo supervisado
+      shapeClassifier = ml5.neuralNetwork(options)
+
+
+      for(let i = 0; i < 100; i++){
+        let input = {image:circles[i]} //input = entrada (es la imagen que debe usar para entrenar)
+        let target = {label:'Circulo'} //target = objetivo (etiqueta, identificador)
+        
+        //Enviamos el circulo y su etiqueta a la red neuronal
+        shapeClassifier.addData(input, target)
+
+        //Enviamos cuadrados
+        shapeClassifier.addData({image:squares[i]}, {label:'Cuadrado'})
+        //Enviamos triángulos
+        shapeClassifier.addData({image:triangles[i]}, {label:'Triangulo'})
+      }
+
+      //Normalización (revisión de inputs)
+      shapeClassifier.normalizeData()
+
+      //Iniciamos el entrenamiento
+      shapeClassifier.train({epochs: 50 }, finishedTrainig)
+    }
+
+    function finishedTrainig(){
+      console.log("Entrenamiento terminado correctamente")
+
+      //2 JSON + 1 Bin
+      shapeClassifier.save()
+
+    }
+  </script>  
+</body>
+</html>
